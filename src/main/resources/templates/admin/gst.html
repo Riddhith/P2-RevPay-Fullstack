@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+
+<head>
+    <title>GST Approvals</title>
+</head>
+
+<body>
+    <section th:fragment="content">
+        <main>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                <h2 style="font-size:2rem; font-weight:700; color:var(--text-primary);">GST & Business Approvals</h2>
+                <span class="badge" style="background:var(--accent-blue);color:white;" th:text="${#lists.size(pendingBusinesses)} + ' Pending'">0 Pending</span>
+            </div>
+
+            <div class="card mb-4 shadow-sm fade-in">
+                <div class="card-header" style="background:var(--bg-secondary);">
+                    <h3 class="card-title">Business Accounts Awaiting Verification</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Business Name</th>
+                                    <th>Tax ID / PAN</th>
+                                    <th>GST Number</th>
+                                    <th style="text-align:right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(pendingBusinesses)}">
+                                    <td colspan="4" style="text-align:center;color:var(--text-muted);padding:40px;">No pending business registrations.</td>
+                                </tr>
+                                <tr th:each="b : ${pendingBusinesses}">
+                                    <td th:text="${b.businessName}"></td>
+                                    <td th:text="${b.taxId}"></td>
+                                    <td th:text="${b.gstNumber}"></td>
+                                    <td style="text-align:right;">
+                                        <form th:action="@{/admin/approve-business/{id}(id=${b.profileId})}" method="post" style="display:inline;">
+                                            <input type="hidden" name="action" value="approve">
+                                            <button type="submit" class="btn btn-sm" style="background:var(--accent-green);color:white;margin-right:8px;border:none;">Approve</button>
+                                        </form>
+                                        <form th:action="@{/admin/approve-business/{id}(id=${b.profileId})}" method="post" style="display:inline;">
+                                            <input type="hidden" name="action" value="reject">
+                                            <button type="submit" class="btn btn-sm" style="background:var(--accent-red);color:white;border:none;">Reject</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </section>
+</body>
+</html>

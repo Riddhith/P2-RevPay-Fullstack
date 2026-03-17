@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+
+<head>
+    <title>Business Dashboard</title>
+</head>
+
+<body>
+    <section th:fragment="content">
+
+        <!-- Wallet Card -->
+        <div class="balance-card mb-24 fade-in" style="margin-bottom:24px;">
+            <div class="balance-label" style="font-weight:700; font-size:1.1rem; margin-bottom:0;">Business Wallet
+                Actions</div>
+            <div style="display:flex;gap:12px;margin-top:20px;">
+                <a th:href="@{/wallet}" class="btn" style="background:white;color:var(--accent-navy);">+ Add Funds</a>
+                <a th:href="@{/business/invoices/new}" class="btn"
+                    style="background:rgba(255,255,255,0.2);color:white;">New Invoice</a>
+                <a th:href="@{/business/loans/apply}" class="btn"
+                    style="background:rgba(255,255,255,0.2);color:white;">Apply for Loan</a>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stat-grid fade-in" style="margin-bottom:24px;animation-delay:0.1s;">
+            <div class="stat-card green">
+                <div class="stat-label">Total Received</div>
+                <div class="stat-value">&#8377;<span
+                        th:text="${#numbers.formatDecimal(totalReceived, 1, 2)}">0.00</span>
+                </div>
+            </div>
+            <div class="stat-card red">
+                <div class="stat-label">Total Sent</div>
+                <div class="stat-value">&#8377;<span th:text="${#numbers.formatDecimal(totalSent, 1, 2)}">0.00</span>
+                </div>
+            </div>
+            <div class="stat-card blue">
+                <div class="stat-label">Notifications</div>
+                <div class="stat-value" th:text="${unreadCount}">0</div>
+                <div class="stat-change">Unread</div>
+            </div>
+            <div class="stat-card amber">
+                <div class="stat-label">Account Type</div>
+                <div class="stat-value" style="font-size:1.4rem;margin-top:10px;">Business</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card fade-in" style="margin-bottom:24px;animation-delay:0.2s;">
+            <div class="card-header">
+                <h3 class="card-title">Quick Actions</h3>
+            </div>
+            <div class="card-body">
+                <div class="quick-actions">
+                    <a th:href="@{/transactions/send}" class="quick-action">
+                        <span class="icon">&#128184;</span>
+                        <span class="label">Send</span>
+                    </a>
+                    <a th:href="@{/requests/send}" class="quick-action">
+                        <span class="icon">&#9993;&#65039;</span>
+                        <span class="label">Request</span>
+                    </a>
+                    <a th:href="@{/business/invoices/new}" class="quick-action">
+                        <span class="icon">&#129534;</span>
+                        <span class="label">Invoice</span>
+                    </a>
+                    <a th:href="@{/business/loans}" class="quick-action" style="position:relative;">
+                        <span class="icon">&#127974;</span>
+                        <span class="label">Loans</span>
+                    </a>
+                    <a th:href="@{/notifications}" class="quick-action" style="position:relative;">
+                        <span class="icon">&#128276;</span>
+                        <span class="label">Alerts</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="card fade-in" style="animation-delay:0.3s;">
+            <div class="card-header">
+                <h3 class="card-title">Recent Transactions</h3>
+                <a th:href="@{/transactions/history}" class="btn btn-outline btn-sm">View All</a>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Details</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(recentTransactions)}">
+                            <td colspan="5" style="text-align:center;color:var(--text-muted);padding:40px;">
+                                No transactions yet.
+                            </td>
+                        </tr>
+                        <tr th:each="txn : ${recentTransactions}">
+                            <td>
+                                <span
+                                    th:if="${txn.txnType == 'SEND' and txn.senderId != null and txn.senderId.equals(user.userId)}"
+                                    class="badge badge-warning">SENT</span>
+                                <span
+                                    th:if="${txn.txnType == 'SEND' and txn.receiverId != null and txn.receiverId.equals(user.userId)}"
+                                    class="badge badge-success">RECEIVED</span>
+                                <span
+                                    th:if="${txn.txnType == 'PAYMENT' and txn.senderId != null and txn.senderId.equals(user.userId)}"
+                                    class="badge badge-warning">PAID</span>
+                                <span
+                                    th:if="${txn.txnType == 'PAYMENT' and txn.receiverId != null and txn.receiverId.equals(user.userId)}"
+                                    class="badge badge-success">RECEIVED_PAYMENT</span>
+                                <span th:if="${txn.txnType != 'SEND' and txn.txnType != 'PAYMENT'}"
+                                    class="badge badge-info" th:text="${txn.txnType}">TYPE</span>
+                            </td>
+                            <td>
+                                <span style="font-weight:700;"
+                                    th:style="${txn.senderId != null and txn.senderId.equals(user.userId) ? 'font-weight:700;color:var(--accent-red);' : 'font-weight:700;color:var(--accent-green);'}">
+                                    <span
+                                        th:text="${txn.senderId != null and txn.senderId.equals(user.userId) ? '-' : '+'}"></span>&#8377;<span
+                                        th:text="${#numbers.formatDecimal(txn.amount, 1, 2)}"></span>
+                                </span>
+                            </td>
+                            <td>
+                                <div style="font-size:0.8rem;">
+                                    <span
+                                        th:if="${txn.senderId != null and !txn.senderId.equals(user.userId) and txn.senderName != null}"
+                                        style="color:var(--text-secondary);">From: <span
+                                            style="font-weight:600;color:var(--text-primary);"
+                                            th:text="${txn.senderName}"></span></span>
+                                    <span
+                                        th:if="${txn.receiverId != null and !txn.receiverId.equals(user.userId) and txn.receiverName != null}"
+                                        style="color:var(--text-secondary);">To: <span
+                                            style="font-weight:600;color:var(--text-primary);"
+                                            th:text="${txn.receiverName}"></span></span>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-success" th:text="${txn.status}">COMPLETED</span></td>
+                            <td style="color:var(--text-muted);font-size:0.8rem;"
+                                th:text="${txn.txnTimestamp != null ? #temporals.format(txn.txnTimestamp,'dd MMM yy HH:mm') : '-'}">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </section>
+</body>
+
+</html>

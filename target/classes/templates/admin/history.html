@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+
+<head>
+    <title>Approved History</title>
+</head>
+
+<body>
+    <section th:fragment="content">
+        <main>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                <h2 style="font-size:2rem; font-weight:700; color:var(--text-primary);">Approved History</h2>
+            </div>
+
+            <div class="card mb-24 shadow-sm fade-in">
+                <div class="card-header" style="background:var(--bg-secondary);">
+                    <h3 class="card-title">Approved Business Accounts</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Business Name</th>
+                                    <th>Tax ID / PAN</th>
+                                    <th>GST Number</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(approvedBusinesses)}">
+                                    <td colspan="4" style="text-align:center;color:var(--text-muted);padding:40px;">No approved businesses found.</td>
+                                </tr>
+                                <tr th:each="b : ${approvedBusinesses}">
+                                    <td th:text="${b.businessName}"></td>
+                                    <td th:text="${b.taxId}"></td>
+                                    <td th:text="${b.gstNumber}"></td>
+                                    <td><span class="badge" style="background:var(--accent-green);color:white;" th:text="${b.status}">APPROVED</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm fade-in" style="animation-delay:0.1s;">
+                <div class="card-header" style="background:var(--bg-secondary);">
+                    <h3 class="card-title">Approved Loans</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Applicant</th>
+                                    <th>Amount</th>
+                                    <th>Purpose</th>
+                                    <th>Tenure (Mos)</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(approvedLoans)}">
+                                    <td colspan="5" style="text-align:center;color:var(--text-muted);padding:40px;">No approved loans found.</td>
+                                </tr>
+                                <tr th:each="loan : ${approvedLoans}">
+                                    <td th:text="${loan.applicantName}"></td>
+                                    <td th:text="${'₹' + #numbers.formatDecimal(loan.loanAmount, 1, 2)}"></td>
+                                    <td th:text="${loan.purpose}"></td>
+                                    <td th:text="${loan.tenureMonths}"></td>
+                                    <td><span class="badge" style="background:var(--accent-green);color:white;" th:text="${loan.status}">APPROVED</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </section>
+</body>
+</html>

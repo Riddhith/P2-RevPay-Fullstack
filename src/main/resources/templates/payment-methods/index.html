@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+
+<head>
+    <title>Payment Methods</title>
+</head>
+
+<body>
+    <section th:fragment="content">
+
+        <!-- Add Card Form -->
+        <div class="card mb-24 fade-in">
+            <div class="card-header">
+                <h2 class="card-title">➕ Add Payment Method</h2>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/payment-methods/add}" method="post"><div class="form-row cols-3">
+                        <div class="form-group">
+                            <label class="form-label">Card Type</label>
+                            <select name="cardType" class="form-control" required>
+                                <option value="CREDIT">💳 Credit Card</option>
+                                <option value="DEBIT">🏧 Debit Card</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Card Number</label>
+                            <input type="text" name="cardNumber" class="form-control" placeholder="1234 5678 9012 3456"
+                                maxlength="19" pattern="[\d\s]{13,19}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Cardholder Name</label>
+                            <input type="text" name="cardholderName" class="form-control" placeholder="Name on card"
+                                required>
+                        </div>
+                    </div>
+                    <div class="form-row cols-3">
+                        <div class="form-group">
+                            <label class="form-label">Expiry Month</label>
+                            <input type="number" name="expiryMonth" class="form-control" placeholder="MM" min="1"
+                                max="12" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Expiry Year</label>
+                            <input type="number" name="expiryYear" class="form-control" placeholder="YYYY" min="2024"
+                                max="2040" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Billing Address</label>
+                            <input type="text" name="billingAddress" class="form-control" placeholder="Street, City">
+                        </div>
+                    </div>
+                    <div class="form-row cols-2">
+                        <div class="form-group">
+                            <label class="form-label">Transaction PIN</label>
+                            <input type="password" name="pin" class="form-control" placeholder="Set 4-6 digit PIN" 
+                                minlength="4" maxlength="6" pattern="\d{4,6}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Confirm PIN</label>
+                            <input type="password" name="confirmPin" class="form-control" placeholder="Confirm PIN" 
+                                minlength="4" maxlength="6" pattern="\d{4,6}" required>
+                        </div>
+                    </div>
+                    <div class="flex gap-12" style="align-items:center; margin-top:8px;">
+                        <label
+                            style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.875rem;color:var(--text-secondary);">
+                            <input type="checkbox" name="makeDefault" value="true"> Set as default
+                        </label>
+                        <button type="submit" class="btn btn-primary">Add Card 💳</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Cards List -->
+        <h2 class="card-title mb-16">Your Payment Methods</h2>
+        <div th:if="${#lists.isEmpty(paymentMethods)}" class="card">
+            <div class="card-body" style="text-align:center;color:var(--text-muted);padding:40px;">
+                No payment methods added yet.
+            </div>
+        </div>
+
+        <div class="stat-grid">
+            <div th:each="pm : ${paymentMethods}" class="payment-card fade-in">
+                <span th:if="${pm.default}" class="badge badge-success card-default-badge">✓ Default</span>
+                <div class="card-chip">💎</div>
+                <div class="card-number" th:text="${pm.maskedNumber}">**** **** **** 1234</div>
+                <div class="card-meta">
+                    <span th:text="${pm.cardholderName}">Name</span>
+                    <span th:text="${pm.expiryFormatted}">MM/YYYY</span>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:16px;">
+                    <span class="badge badge-info" th:text="${pm.cardType}">CREDIT</span>
+                    <span th:class="${pm.pinHash != null ? 'badge badge-success' : 'badge badge-warning'}" 
+                          th:text="${pm.pinHash != null ? '✓ PIN Set' : 'No PIN'}"></span>
+                    <form th:unless="${pm.default}" th:action="@{/payment-methods/{id}/set-default(id=${pm.methodId})}"
+                        method="post" style="display:inline"><button type="submit" class="btn btn-ghost btn-sm">Set Default</button>
+                    </form>
+                    <form th:action="@{/payment-methods/{id}/delete(id=${pm.methodId})}" method="post"
+                        style="display:inline;margin-left:auto"><button type="submit" class="btn btn-danger btn-sm" data-confirm="Remove this card?">🗑</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </section>
+</body>
+
+</html>

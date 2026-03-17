@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+
+<head>
+    <title>Notifications</title>
+</head>
+
+<body>
+    <section th:fragment="content">
+
+        <div class="flex-between mb-24">
+            <div class="flex gap-12">
+                <span class="badge badge-info" th:text="${unreadCount + ' Unread'}"></span>
+            </div>
+            <div class="flex gap-12">
+                <form th:action="@{/notifications/read-all}" method="post"><button type="submit"
+                        class="btn btn-outline btn-sm">✓ Mark All Read</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div th:if="${#lists.isEmpty(notifications)}"
+                style="padding:48px;text-align:center;color:var(--text-muted);">
+                🔔 No notifications yet.
+            </div>
+
+            <div th:each="n : ${notifications}" th:class="${'notif-item' + (n.read ? '' : ' unread')}">
+                <div
+                    th:class="${'notif-icon ' + (n.notifType == 'TRANSACTION' ? 'transaction' : n.notifType == 'MONEY_REQUEST' ? 'request' : n.notifType == 'CARD_CHANGE' ? 'card' : n.notifType == 'LOAN' ? 'loan' : 'general')}">
+                    <span
+                        th:text="${n.notifType == 'TRANSACTION' ? '💸' : n.notifType == 'MONEY_REQUEST' ? '📨' : n.notifType == 'CARD_CHANGE' ? '💳' : n.notifType == 'LOAN' ? '🏦' : '🔔'}"></span>
+                </div>
+                <div class="notif-content" style="flex:1">
+                    <div class="title" th:text="${n.title}"></div>
+                    <div class="message" th:text="${n.message}"></div>
+                    <div class="time"
+                        th:text="${n.createdAt != null ? #temporals.format(n.createdAt,'dd MMM yyyy HH:mm') : ''}">
+                    </div>
+                </div>
+                <div th:if="${!n.read}">
+                    <form th:action="@{/notifications/{id}/read(id=${n.notifId})}" method="post"><button type="submit"
+                            class="btn btn-ghost btn-sm" title="Mark as read">✓</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </section>
+</body>
+
+</html>

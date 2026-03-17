@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+
+<head>
+    <title>My Invoices</title>
+</head>
+
+<body>
+    <section th:fragment="content">
+        <div class="flex-between mb-24">
+            <div>
+                <h2 style="margin:0;font-size:1.5rem;font-weight:700;">My Invoices</h2>
+            </div>
+        </div>
+
+        <div class="card fade-in">
+            <div th:if="${errorMsg}" class="alert alert-danger" th:text="${errorMsg}"></div>
+            <div th:if="${successMsg}" class="alert alert-success" th:text="${successMsg}"></div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Invoice #</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(invoices)}">
+                            <td colspan="5" style="text-align:center;color:var(--text-muted);padding:40px;">
+                                You have no invoices.
+                            </td>
+                        </tr>
+                        <tr th:each="inv : ${invoices}">
+                            <td class="font-bold" th:text="${inv.invoiceNumber}"></td>
+                            <td class="text-muted text-sm"
+                                th:text="${inv.createdAt != null ? #temporals.format(inv.createdAt, 'dd MMM yyyy') : '-'}">
+                            </td>
+                            <td class="font-bold text-lg">₹<span
+                                    th:text="${#numbers.formatDecimal(inv.totalAmount,1,2)}"></span></td>
+                            <td>
+                                <span
+                                    th:class="${'badge' + (inv.status == 'PAID' ? ' badge-success' : inv.status == 'DRAFT' ? ' badge-muted' : inv.status == 'OVERDUE' ? ' badge-danger' : ' badge-info')}"
+                                    th:text="${inv.status}"></span>
+                            </td>
+                            <td>
+                                <div class="flex gap-12">
+                                    <a th:href="@{/personal/invoices/{id}(id=${inv.invoiceId})}"
+                                        class="btn btn-outline btn-sm">🔍 View</a>
+                                    <form th:if="${inv.status != 'PAID' and inv.status != 'CANCELLED'}"
+                                        th:action="@{/personal/invoices/{id}/pay(id=${inv.invoiceId})}" method="post">
+                                        <button type="submit" class="btn btn-success btn-sm">💸 Pay</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

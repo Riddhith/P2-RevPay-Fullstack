@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+
+<head>
+    <title>Transaction History</title>
+</head>
+
+<body>
+    <section th:fragment="content">
+
+        <!-- Filter Bar -->
+        <div class="card mb-24">
+            <div class="card-body">
+                <form method="get" th:action="@{/transactions/history}">
+                    <div class="form-row cols-3" style="align-items:end;gap:12px;">
+                        <div class="form-group" style="margin:0">
+                            <label class="form-label">Type</label>
+                            <select name="type" class="form-control">
+                                <option value="">All Types</option>
+                                <option th:selected="${type == 'SEND'}" value="SEND">Send</option>
+                                <option th:selected="${type == 'ADD_FUNDS'}" value="ADD_FUNDS">Add Funds</option>
+                                <option th:selected="${type == 'WITHDRAWAL'}" value="WITHDRAWAL">Withdrawal</option>
+                                <option th:selected="${type == 'PAYMENT'}" value="PAYMENT">Payment</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin:0">
+                            <label class="form-label">From Date</label>
+                            <input type="date" name="from" class="form-control" th:value="${from}">
+                        </div>
+                        <div class="form-group" style="margin:0">
+                            <label class="form-label">To Date</label>
+                            <input type="date" name="to" class="form-control" th:value="${to}">
+                        </div>
+                        <div class="form-group" style="margin:0">
+                            <label class="form-label">Min Amount</label>
+                            <input type="number" name="minAmount" class="form-control" placeholder="0"
+                                th:value="${minAmount}" step="0.01" min="0">
+                        </div>
+                        <div class="form-group" style="margin:0">
+                            <label class="form-label">Max Amount</label>
+                            <input type="number" name="maxAmount" class="form-control" placeholder="Any"
+                                th:value="${maxAmount}" step="0.01" min="0">
+                        </div>
+                        <div class="form-group" style="margin:0">
+                            <label class="form-label">Search</label>
+                            <input type="text" name="search" class="form-control" placeholder="Name or TXN ID"
+                                th:value="${search}">
+                        </div>
+                    </div>
+                    <div class="flex gap-12 mt-16">
+                        <button type="submit" class="btn btn-primary">🔍 Filter</button>
+                        <a th:href="@{/transactions/history}" class="btn btn-outline">✗ Clear</a>
+                        <a th:href="@{/transactions/export/csv}" class="btn btn-ghost btn-sm">⬇ CSV</a>
+                        <a th:href="@{/transactions/export/pdf}" class="btn btn-ghost btn-sm">⬇ PDF</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">📊 Transaction History</h2>
+                <span class="text-sm text-muted" th:text="${'Page ' + currentPage}"></span>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>TXN ID</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>From / To</th>
+                            <th>Note</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(transactions)}">
+                            <td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px;">No
+                                transactions match your filters.</td>
+                        </tr>
+                        <tr th:each="txn : ${transactions}">
+                            <td class="text-muted text-sm" th:text="${'#' + txn.txnId}"></td>
+                            <td>
+                                <span
+                                    th:if="${txn.txnType == 'SEND' and txn.senderId != null and txn.senderId.equals(user.userId)}"
+                                    class="badge badge-warning" th:text="'SENT'"></span>
+                                <span
+                                    th:if="${txn.txnType == 'SEND' and txn.receiverId != null and txn.receiverId.equals(user.userId)}"
+                                    class="badge badge-success" th:text="'RECEIVED'"></span>
+
+                                <span
+                                    th:if="${txn.txnType == 'PAYMENT' and txn.senderId != null and txn.senderId.equals(user.userId)}"
+                                    class="badge badge-warning" th:text="'PAID'"></span>
+                                <span
+                                    th:if="${txn.txnType == 'PAYMENT' and txn.receiverId != null and txn.receiverId.equals(user.userId)}"
+                                    class="badge badge-success" th:text="'RECEIVED_PAYMENT'"></span>
+
+                                <span th:if="${txn.txnType != 'SEND' and txn.txnType != 'PAYMENT'}" class="badge"
+                                    th:classappend="${txn.txnType == 'ADD_FUNDS' ? 'badge-success' : 'badge-info'}"
+                                    th:text="${txn.txnType}">TYPE</span>
+                            </td>
+                            <td>
+                                <span
+                                    th:class="${txn.senderId != null and txn.senderId.equals(user.userId) ? 'text-danger font-bold' : 'text-success font-bold'}">
+                                    <span
+                                        th:text="${txn.senderId != null and txn.senderId.equals(user.userId) ? '-' : '+'}"></span>₹<span
+                                        th:text="${#numbers.formatDecimal(txn.amount, 1, 2)}"></span>
+                                </span>
+                            </td>
+                            <td style="font-size:0.8rem;color:var(--text-secondary);">
+                                <div th:if="${txn.senderId != null and !txn.senderId.equals(user.userId) and txn.senderName != null}"
+                                    th:text="${'From: ' + txn.senderName}"></div>
+                                <div th:if="${txn.receiverId != null and !txn.receiverId.equals(user.userId) and txn.receiverName != null}"
+                                    th:text="${'To: ' + txn.receiverName}"></div>
+                                <div th:if="${txn.txnType == 'ADD_FUNDS' or txn.txnType == 'WITHDRAWAL'}"
+                                    th:text="${txn.txnType == 'ADD_FUNDS' ? 'Wallet' : 'Bank'}"></div>
+                            </td>
+                            <td style="font-size:0.8rem;color:var(--text-muted);" th:text="${txn.note ?: '-'}"></td>
+                            <td><span class="badge badge-success" th:text="${txn.status}"></span></td>
+                            <td class="text-muted text-sm"
+                                th:text="${txn.txnTimestamp != null ? #temporals.format(txn.txnTimestamp,'dd MMM yy HH:mm') : '-'}">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination -->
+            <div class="flex gap-12" style="padding:16px 20px;justify-content:flex-end;">
+                <a th:if="${currentPage > 1}"
+                    th:href="@{/transactions/history(page=${currentPage-1},type=${type},from=${from},to=${to},search=${search})}"
+                    class="btn btn-outline btn-sm">← Prev</a>
+                <span class="btn btn-ghost btn-sm" th:text="${'Page ' + currentPage}"></span>
+                <a th:href="@{/transactions/history(page=${currentPage+1},type=${type},from=${from},to=${to},search=${search})}"
+                    class="btn btn-outline btn-sm">Next →</a>
+            </div>
+        </div>
+
+    </section>
+</body>
+
+</html>

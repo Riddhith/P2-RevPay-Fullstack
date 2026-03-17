@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+
+<head>
+    <title>Apply for Loan</title>
+</head>
+
+<body>
+    <section th:fragment="content">
+        <div style="max-width:600px;margin:0 auto;">
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h2 class="card-title">🏦 Loan Application</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">ℹ Loan applications are reviewed within 5-7 business days. Default
+                        interest rate is 12% per annum.</div>
+                    <form th:action="@{/business/loans/apply}" method="post" enctype="multipart/form-data"><div class="form-group">
+                            <label class="form-label">Loan Amount Required (₹)</label>
+                            <input type="number" name="loanAmount" class="form-control" placeholder="e.g. 500000"
+                                step="1000" min="10000" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Purpose of Loan</label>
+                            <select name="purpose" class="form-control" required>
+                                <option value="">Select Purpose</option>
+                                <option>Business Expansion</option>
+                                <option>Equipment Purchase</option>
+                                <option>Working Capital</option>
+                                <option>Inventory</option>
+                                <option>Marketing</option>
+                                <option>Technology Upgrade</option>
+                                <option>Debt Consolidation</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Repayment Tenure</label>
+                            <select name="tenureMonths" class="form-control" required>
+                                <option value="6">6 Months</option>
+                                <option value="12" selected>12 Months</option>
+                                <option value="24">24 Months</option>
+                                <option value="36">36 Months</option>
+                                <option value="48">48 Months</option>
+                                <option value="60">60 Months</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Supporting Document (optional)</label>
+                            <input type="file" name="document" class="form-control" accept=".pdf,.jpg,.png,.doc,.docx">
+                            <p class="text-muted text-sm mt-4">Financial statements, business plan, etc.</p>
+                        </div>
+                        <div class="flex gap-12">
+                            <a th:href="@{/business/loans}" class="btn btn-outline w-full"
+                                style="justify-content:center;">Cancel</a>
+                            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;">Submit
+                                Application 🏦</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+
+<head>
+    <title>Loan Details</title>
+</head>
+
+<body>
+    <section th:fragment="content">
+        <div style="max-width:700px;margin:0 auto;">
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h2 class="card-title">🏦 Loan #<span th:text="${loan.loanId}"></span></h2>
+                    <span
+                        th:class="${'badge' + (loan.status == 'APPROVED' ? ' badge-success' : loan.status == 'PENDING' ? ' badge-warning' : loan.status == 'REJECTED' ? ' badge-danger' : ' badge-muted')}"
+                        th:text="${loan.status}"></span>
+                </div>
+                <div class="card-body">
+                    <!-- Stats -->
+                    <div class="stat-grid mb-24">
+                        <div class="stat-card blue">
+                            <div class="stat-label">Loan Amount</div>
+                            <div class="stat-value" style="font-size:1.5rem;">₹<span
+                                    th:text="${#numbers.formatDecimal(loan.loanAmount,1,2)}"></span></div>
+                            <span class="stat-icon">💰</span>
+                        </div>
+                        <div class="stat-card green">
+                            <div class="stat-label">Amount Paid</div>
+                            <div class="stat-value" style="font-size:1.5rem;">₹<span
+                                    th:text="${#numbers.formatDecimal(loan.amountPaid,1,2)}"></span></div>
+                            <span class="stat-icon">✓</span>
+                        </div>
+                        <div class="stat-card amber">
+                            <div class="stat-label">Remaining</div>
+                            <div class="stat-value" style="font-size:1.5rem;">₹<span
+                                    th:text="${#numbers.formatDecimal(loan.amountRemaining,1,2)}"></span></div>
+                            <span class="stat-icon">⏳</span>
+                        </div>
+                    </div>
+
+                    <div class="form-row cols-2 mb-24">
+                        <div>
+                            <div class="text-muted text-sm">Purpose</div>
+                            <div class="font-bold" th:text="${loan.purpose}"></div>
+                        </div>
+                        <div>
+                            <div class="text-muted text-sm">Tenure</div>
+                            <div class="font-bold" th:text="${loan.tenureMonths + ' months'}"></div>
+                        </div>
+                        <div>
+                            <div class="text-muted text-sm">Interest Rate</div>
+                            <div class="font-bold" th:text="${loan.interestRate + '% p.a.'}"></div>
+                        </div>
+                        <div>
+                            <div class="text-muted text-sm">Applied On</div>
+                            <div class="font-bold"
+                                th:text="${loan.createdAt != null ? loan.createdAt.toString().substring(0,10) : '-'}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Repayment Form -->
+                    <div th:if="${loan.status == 'APPROVED' and loan.amountRemaining.compareTo(0) > 0}" class="card"
+                        style="background:rgba(16,185,129,0.05);border-color:rgba(16,185,129,0.2);">
+                        <div class="card-header">
+                            <h3 class="card-title" style="font-size:0.9rem;">Make a Repayment</h3>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/business/loans/{id}/repay(id=${loan.loanId})}" method="post">
+                                <div class="flex gap-12">
+                                    <input type="number" name="amount" class="form-control"
+                                        placeholder="Repayment amount (₹)" step="0.01" min="1"
+                                        th:max="${loan.amountRemaining}" required>
+                                    <button type="submit" class="btn btn-success" style="white-space:nowrap;">Pay
+                                        ₹</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-12 mt-24">
+                        <a th:href="@{/business/loans}" class="btn btn-outline">← Back to Loans</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

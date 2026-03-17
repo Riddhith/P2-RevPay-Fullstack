@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+
+<head>
+    <title>Personal Dashboard</title>
+</head>
+
+<body>
+    <section th:fragment="content">
+
+        <!-- Wallet Balance Card -->
+        <div class="balance-card mb-24 fade-in" style="margin-bottom:24px;">
+            <div class="balance-label" style="font-weight:700; font-size:1.1rem; margin-bottom:0;">Wallet Quick Actions
+            </div>
+            <div style="display:flex;gap:12px;margin-top:20px;">
+                <a th:href="@{/wallet}" class="btn" style="background:white;color:var(--accent-navy);">+ Add Funds</a>
+                <a th:href="@{/wallet}" class="btn" style="background:rgba(255,255,255,0.2);color:white;">Withdraw</a>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stat-grid fade-in" style="margin-bottom:24px;animation-delay:0.1s;">
+            <div class="stat-card green">
+                <div class="stat-label">Total Received</div>
+                <div class="stat-value">&#8377;<span
+                        th:text="${#numbers.formatDecimal(totalReceived, 1, 2)}">0.00</span>
+                </div>
+            </div>
+            <div class="stat-card red">
+                <div class="stat-label">Total Sent</div>
+                <div class="stat-value">&#8377;<span th:text="${#numbers.formatDecimal(totalSent, 1, 2)}">0.00</span>
+                </div>
+            </div>
+            <div class="stat-card blue">
+                <div class="stat-label">Notifications</div>
+                <div class="stat-value" th:text="${unreadCount}">0</div>
+                <div class="stat-change">Unread</div>
+            </div>
+            <div class="stat-card amber">
+                <div class="stat-label">Account Type</div>
+                <div class="stat-value" style="font-size:1.2rem;margin-top:14px;" th:text="${user.accountType}">PERSONAL
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card fade-in" style="margin-bottom:24px;animation-delay:0.2s;">
+            <div class="card-header">
+                <h3 class="card-title">Quick Actions</h3>
+            </div>
+            <div class="card-body">
+                <div class="quick-actions">
+                    <a th:href="@{/transactions/send}" class="quick-action">
+                        <span class="icon">&#128184;</span>
+                        <span class="label">Send</span>
+                    </a>
+                    <a th:href="@{/requests/incoming}" class="quick-action" style="position:relative;">
+                        <span class="icon">&#128229;</span>
+                        <span class="label">Incoming</span>
+                        <span class="badge badge-info" style="position:absolute;top:-5px;right:-5px;font-size:0.7rem;"
+                            th:if="${incomingCount != null and incomingCount > 0}" th:text="${incomingCount}"></span>
+                    </a>
+                    <a th:href="@{/personal/invoices}" class="quick-action" style="position:relative;">
+                        <span class="icon">&#129534;</span>
+                        <span class="label">Invoices</span>
+                        <span class="badge badge-warning"
+                            style="position:absolute;top:-5px;right:-5px;font-size:0.7rem;"
+                            th:if="${pendingInvoicesCount != null and pendingInvoicesCount > 0}"
+                            th:text="${pendingInvoicesCount}"></span>
+                    </a>
+                    <a th:href="@{/notifications}" class="quick-action" style="position:relative;">
+                        <span class="icon">&#128276;</span>
+                        <span class="label">Alerts</span>
+                        <span class="badge badge-blue" style="position:absolute;top:-5px;right:-5px;font-size:0.7rem;"
+                            th:if="${unreadCount != null and unreadCount > 0}" th:text="${unreadCount}"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="card fade-in" style="animation-delay:0.3s;">
+            <div class="card-header">
+                <h3 class="card-title">Recent Transactions</h3>
+                <a th:href="@{/transactions/history}" class="btn btn-outline btn-sm">View All</a>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Details</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(recentTransactions)}">
+                            <td colspan="5" style="text-align:center;color:var(--text-muted);padding:40px;">
+                                No transactions yet. <a th:href="@{/transactions/send}"
+                                    style="color:var(--accent-blue);text-decoration:none;">Send your first payment</a>
+                            </td>
+                        </tr>
+                        <tr th:each="txn : ${recentTransactions}">
+                            <td>
+                                <span
+                                    th:if="${txn.txnType == 'SEND' and txn.senderId != null and txn.senderId.equals(user.userId)}"
+                                    class="badge badge-warning">SENT</span>
+                                <span
+                                    th:if="${txn.txnType == 'SEND' and txn.receiverId != null and txn.receiverId.equals(user.userId)}"
+                                    class="badge badge-success">RECEIVED</span>
+                                <span
+                                    th:if="${txn.txnType == 'PAYMENT' and txn.senderId != null and txn.senderId.equals(user.userId)}"
+                                    class="badge badge-warning">PAID</span>
+                                <span
+                                    th:if="${txn.txnType == 'PAYMENT' and txn.receiverId != null and txn.receiverId.equals(user.userId)}"
+                                    class="badge badge-success">RECEIVED_PAYMENT</span>
+                                <span th:if="${txn.txnType != 'SEND' and txn.txnType != 'PAYMENT'}" class="badge"
+                                    th:classappend="${txn.txnType == 'ADD_FUNDS' ? 'badge-success' : 'badge-info'}"
+                                    th:text="${txn.txnType}">TYPE</span>
+                            </td>
+                            <td>
+                                <span style="font-weight:700;"
+                                    th:style="${txn.senderId != null and txn.senderId.equals(user.userId) ? 'font-weight:700;color:var(--accent-red);' : 'font-weight:700;color:var(--accent-green);'}">
+                                    <span
+                                        th:text="${txn.senderId != null and txn.senderId.equals(user.userId) ? '-' : '+'}"></span>&#8377;<span
+                                        th:text="${#numbers.formatDecimal(txn.amount, 1, 2)}"></span>
+                                </span>
+                            </td>
+                            <td>
+                                <div style="font-size:0.8rem;">
+                                    <div th:if="${txn.senderId != null and !txn.senderId.equals(user.userId) and txn.senderName != null}"
+                                        style="color:var(--text-secondary);">From: <span
+                                            style="font-weight:600;color:var(--text-primary);"
+                                            th:text="${txn.senderName}"></span></div>
+                                    <div th:if="${txn.receiverId != null and !txn.receiverId.equals(user.userId) and txn.receiverName != null}"
+                                        style="color:var(--text-secondary);">To: <span
+                                            style="font-weight:600;color:var(--text-primary);"
+                                            th:text="${txn.receiverName}"></span></div>
+                                    <div th:if="${txn.note != null}"
+                                        style="color:var(--text-muted);font-style:italic;margin-top:2px;"
+                                        th:text="${txn.note}"></div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-success" th:text="${txn.status}">COMPLETED</span></td>
+                            <td style="color:var(--text-muted);font-size:0.8rem;"
+                                th:text="${txn.txnTimestamp != null ? #temporals.format(txn.txnTimestamp,'dd MMM yy HH:mm') : '-'}">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </section>
+</body>
+
+</html>

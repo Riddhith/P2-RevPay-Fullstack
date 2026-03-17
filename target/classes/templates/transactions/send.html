@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+
+<head>
+    <title>Send Money</title>
+</head>
+
+<body>
+    <section th:fragment="content">
+        <div style="display:flex;justify-content:center;padding:24px 0;">
+            <div class="card fade-in" style="max-width:600px;width:100%;">
+                <div class="card-header d-flex flex-between">
+                    <h3 class="card-title" style="color:var(--accent-blue);margin:0;">Send Money</h3>
+
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/transactions/send}" method="post">
+                        <div class="form-group">
+                            <label class="form-label">Recipient (username / email / phone)</label>
+                            <input type="text" name="recipient" class="form-control"
+                                placeholder="e.g. johndoe or +91 9999999999" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Amount</label>
+                            <div style="display:flex;gap:8px;align-items:center;">
+                                <span style="font-size:1.2rem;color:var(--text-secondary);font-weight:600;">₹</span>
+                                <input type="number" name="amount" class="form-control" placeholder="0.00" step="0.01"
+                                    min="1" required style="font-size:1.4rem;font-weight:700;color:var(--accent-blue);">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Note (optional)</label>
+                            <input type="text" name="note" class="form-control" placeholder="What's it for?">
+                        </div>
+
+                        <div class="form-group" th:if="${not #lists.isEmpty(paymentMethods)}">
+                            <label class="form-label">Select Card to Authorize</label>
+                            <select name="methodId" class="form-control" required>
+                                <option value="">-- Choose a Card --</option>
+                                <option th:each="pm : ${paymentMethods}" 
+                                        th:value="${pm.methodId}" 
+                                        th:text="${pm.cardType + ' ending in ' + pm.lastFour + (pm.isDefault ? ' (Default)' : '')}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                Card PIN <span style="color:var(--accent-red);">*</span>
+                            </label>
+                            <div style="display:flex;gap:8px;">
+                                <input type="password" name="pin" id="pin-input" class="form-control"
+                                    placeholder="Enter your 6-digit Card PIN" maxlength="6" required>
+                                <button class="btn btn-outline" type="button" onclick="togglePin('pin-input')">
+                                    👁
+                                </button>
+                            </div>
+                        </div>
+
+                        <div style="display:flex;gap:16px;margin-top:24px;">
+                            <a th:href="@{/dashboard}" class="btn btn-outline" style="flex:1;justify-content:center;">Cancel</a>
+                            <button type="submit" class="btn btn-primary" style="flex:1;justify-content:center;">Send Money</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            function togglePin(inputId) {
+                const input = document.getElementById(inputId);
+                const btn = event.currentTarget;
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    btn.textContent = '🔒';
+                } else {
+                    input.type = 'password';
+                    btn.textContent = '👁';
+                }
+            }
+        </script>
+    </section>
+</body>
+
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+
+<head>
+    <title>Profile Settings</title>
+</head>
+
+<body>
+    <section th:fragment="content">
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;" class="fade-in">
+            <!-- Profile Info & Business Profile -->
+            <div style="display:flex;flex-direction:column;gap:24px;">
+                <div class="card" style="height:auto;">
+                    <div class="card-header">
+                        <h3 class="card-title">Personal Information</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="text-align:center;margin-bottom:24px;">
+                            <div style="width:80px;height:80px;border-radius:50%;background:var(--accent-blue);color:white;display:flex;align-items:center;justify-content:center;font-size:2.5rem;font-weight:600;margin:0 auto 8px;"
+                                th:text="${user.fullName != null ? user.fullName.substring(0,1).toUpperCase() : 'U'}">U
+                            </div>
+                            <span class="badge badge-info" th:text="${user.accountType}"></span>
+                        </div>
+                        <form th:action="@{/profile/update}" method="post">
+                            <div class="form-group">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" name="fullName" class="form-control" th:value="${user.fullName}"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" th:value="${user.email}" disabled
+                                    style="background:var(--bg-secondary);cursor:not-allowed;">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone</label>
+                                <input type="tel" name="phone" class="form-control" th:value="${user.phone}"
+                                    placeholder="+91 XXXXXXXXXX">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Username</label>
+                                <input type="text" class="form-control" th:value="${user.username}" disabled
+                                    style="background:var(--bg-secondary);cursor:not-allowed;">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-full">Update Profile</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Business Profile Section -->
+                <div class="card fade-in" style="animation-delay:0.3s;"
+                    th:if="${businessProfile != null or user.isBusiness()}">
+                    <div class="card-header">
+                        <h3 class="card-title">Business Profile</h3>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/profile/business-profile}" method="post">
+                            <div class="form-group">
+                                <label class="form-label">Business Name</label>
+                                <input type="text" name="businessName" class="form-control"
+                                    th:value="${businessProfile?.businessName}" placeholder="Your Business Name">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Business Type</label>
+                                <select name="businessType" class="form-control">
+                                    <option value="">Select Type</option>
+                                    <option th:selected="${businessProfile?.businessType == 'Sole Proprietorship'}">Sole
+                                        Proprietorship</option>
+                                    <option th:selected="${businessProfile?.businessType == 'Partnership'}">Partnership
+                                    </option>
+                                    <option th:selected="${businessProfile?.businessType == 'Private Limited'}">Private
+                                        Limited</option>
+                                    <option th:selected="${businessProfile?.businessType == 'Public Limited'}">Public
+                                        Limited</option>
+                                    <option th:selected="${businessProfile?.businessType == 'LLP'}">LLP</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tax ID / PAN</label>
+                                <input type="text" name="taxId" class="form-control"
+                                    th:value="${businessProfile?.taxId}" placeholder="Tax ID / PAN">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">GST Number</label>
+                                <input type="text" name="gstNumber" class="form-control"
+                                    th:value="${businessProfile?.gstNumber}" placeholder="GST Number">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Business Address</label>
+                                <input type="text" name="address" class="form-control"
+                                    th:value="${businessProfile?.address}" placeholder="Full Address">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-full mt-12">Update Business Profile</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Settings -->
+            <div style="display:flex;flex-direction:column;gap:24px;">
+                <div class="card fade-in" style="animation-delay:0.1s;">
+                    <div class="card-header">
+                        <h3 class="card-title" style="color:var(--accent-red);">Change Password</h3>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/profile/change-password}" method="post">
+                            <div class="form-group">
+                                <label class="form-label">Current Password</label>
+                                <input type="password" name="currentPassword" class="form-control"
+                                    placeholder="Current password" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">New Password</label>
+                                <input type="password" name="newPassword" class="form-control"
+                                    placeholder="Min 8 characters" minlength="8" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Confirm New Password</label>
+                                <input type="password" name="confirmNewPassword" class="form-control"
+                                    placeholder="Repeat new password" required>
+                            </div>
+                            <button type="submit" class="btn w-full"
+                                style="background:var(--accent-red);color:white;">Change
+                                Password</button>
+                        </form>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

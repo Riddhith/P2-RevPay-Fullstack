@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+
+<head>
+    <title>Incoming Money Requests</title>
+</head>
+
+<body>
+    <section th:fragment="content">
+        <div class="flex-between mb-16">
+            <div class="flex gap-12">
+                <a th:href="@{/requests/incoming}" class="btn btn-primary btn-sm">📥 Incoming</a>
+                <a th:href="@{/requests/outgoing}" class="btn btn-outline btn-sm">📤 Outgoing</a>
+            </div>
+            <a th:href="@{/requests/send}" class="btn btn-primary btn-sm">+ New Request</a>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">📥 Incoming Requests</h2>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>From</th>
+                            <th>Amount</th>
+                            <th>Purpose</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(requests)}">
+                            <td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">No incoming
+                                requests.</td>
+                        </tr>
+                        <tr th:each="req : ${requests}">
+                            <td><span class="font-bold" th:text="${req.requesterName}"></span>
+                                <div class="text-muted text-sm" th:text="${req.requesterEmail}"></div>
+                            </td>
+                            <td class="font-bold text-info">₹<span
+                                    th:text="${#numbers.formatDecimal(req.amount,1,2)}"></span></td>
+                            <td class="text-muted text-sm" th:text="${req.purpose ?: '-'}"></td>
+                            <td><span
+                                    th:class="${'badge' + (req.status == 'PENDING' ? ' badge-warning' : req.status == 'ACCEPTED' ? ' badge-success' : ' badge-danger')}"
+                                    th:text="${req.status}"></span></td>
+                            <td class="text-muted text-sm"
+                                th:text="${req.createdAt != null ? #temporals.format(req.createdAt,'dd MMM yy') : '-'}">
+                            </td>
+                            <td>
+                                <div class="flex flex-col gap-8" th:if="${req.status == 'PENDING'}">
+                                    <form th:action="@{/requests/{id}/accept(id=${req.requestId})}" method="post" class="flex gap-4">
+                                        <select name="methodId" class="form-control form-control-sm" style="width: 140px; font-size: 0.75rem;" required>
+                                            <option value="">-- Card --</option>
+                                            <option th:each="pm : ${paymentMethods}" 
+                                                    th:value="${pm.methodId}" 
+                                                    th:text="${pm.cardType + ' *' + pm.lastFour}">
+                                            </option>
+                                        </select>
+                                        <input type="password" name="pin" placeholder="PIN" maxlength="6"
+                                            style="width:60px;padding:5px 8px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:0.8rem;"
+                                            required>
+                                        <button type="submit" class="btn btn-success btn-sm"
+                                            data-confirm="Confirm payment for this request?">✓ Pay</button>
+                                    </form>
+                                    <form th:action="@{/requests/{id}/decline(id=${req.requestId})}" method="post"
+                                        style="display:inline"><button type="submit" class="btn btn-danger btn-sm">✗ Decline</button>
+                                    </form>
+                                </div>
+                                <span th:if="${req.status != 'PENDING'}" class="text-muted text-sm">—</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

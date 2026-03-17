@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+
+<head>
+    <title>Invoices</title>
+</head>
+
+<body>
+    <section th:fragment="content">
+
+        <div class="flex-between mb-24">
+            <div class="flex gap-12">
+                <span class="badge badge-info" th:text="${#lists.size(invoices) + ' Total'}"></span>
+            </div>
+            <a th:if="${businessProfile != null and businessProfile.status == 'APPROVED'}" th:href="@{/business/invoices/new}" class="btn btn-primary">+ New Invoice</a>
+            <button th:if="${businessProfile == null or businessProfile.status != 'APPROVED'}" class="btn btn-primary" disabled style="opacity: 0.5; cursor: not-allowed;">+ New Invoice</button>
+        </div>
+
+        <div th:if="${businessProfile != null and businessProfile.status == 'PENDING'}" class="alert alert-warning mb-24">
+            ⚠ Your business profile and GST number are pending admin approval. You cannot generate invoices until approved.
+        </div>
+        <div th:if="${businessProfile != null and businessProfile.status == 'REJECTED'}" class="alert alert-danger mb-24">
+            ❌ Your business profile was rejected by an admin. Please update your profile with correct GST/tax details.
+        </div>
+
+        <div class="card">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Invoice #</th>
+                            <th>Customer</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Due Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(invoices)}">
+                            <td colspan="6" style="text-align:center;color:var(--text-muted);padding:40px;">
+                                No invoices yet. <a th:href="@{/business/invoices/new}"
+                                    style="color:var(--accent-blue);">Create your first invoice</a>
+                            </td>
+                        </tr>
+                        <tr th:each="inv : ${invoices}">
+                            <td class="font-bold" th:text="${inv.invoiceNumber}"></td>
+                            <td>
+                                <div th:text="${inv.customerName}"></div>
+                                <div class="text-muted text-sm" th:text="${inv.customerEmail}"></div>
+                            </td>
+                            <td class="font-bold">₹<span
+                                    th:text="${#numbers.formatDecimal(inv.totalAmount,1,2)}"></span></td>
+                            <td>
+                                <span
+                                    th:class="${'badge' + (inv.status == 'PAID' ? ' badge-success' : inv.status == 'SENT' ? ' badge-info' : inv.status == 'DRAFT' ? ' badge-muted' : inv.status == 'OVERDUE' ? ' badge-danger' : ' badge-warning')}"
+                                    th:text="${inv.status}"></span>
+                                <span th:if="${inv.overdue}" class="badge badge-danger"
+                                    style="margin-left:4px">OVERDUE</span>
+                            </td>
+                            <td class="text-muted text-sm"
+                                th:text="${inv.dueDate != null ? #temporals.format(inv.dueDate,'dd MMM yyyy') : '-'}">
+                            </td>
+                            <td>
+                                <div class="flex gap-8">
+                                    <a th:href="@{/business/invoices/{id}(id=${inv.invoiceId})}"
+                                        class="btn btn-ghost btn-sm">🔍</a>
+                                    <form th:if="${inv.status == 'DRAFT'}"
+                                        th:action="@{/business/invoices/{id}/send(id=${inv.invoiceId})}" method="post"
+                                        style="display:inline"><button class="btn btn-info btn-sm"
+                                            style="background:rgba(59,130,246,0.2);color:#60a5fa;">📧</button>
+                                    </form>
+                                    <form th:if="${inv.status == 'SENT' or inv.status == 'OVERDUE'}"
+                                        th:action="@{/business/invoices/{id}/mark-paid(id=${inv.invoiceId})}"
+                                        method="post" style="display:inline"><button class="btn btn-success btn-sm">✓ Paid</button>
+                                    </form>
+                                    <form th:action="@{/business/invoices/{id}/delete(id=${inv.invoiceId})}"
+                                        method="post" style="display:inline"><button class="btn btn-danger btn-sm"
+                                            data-confirm="Delete this invoice?">🗑</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </section>
+</body>
+
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+
+<head>
+    <title>Loans</title>
+</head>
+
+<body>
+    <section th:fragment="content">
+
+        <div class="flex-between mb-24">
+            <div></div>
+            <a th:if="${businessProfile != null and businessProfile.status == 'APPROVED'}" th:href="@{/business/loans/apply}" class="btn btn-primary">+ Apply for Loan</a>
+            <button th:if="${businessProfile == null or businessProfile.status != 'APPROVED'}" class="btn btn-primary" disabled style="opacity: 0.5; cursor: not-allowed;">+ Apply for Loan</button>
+        </div>
+        
+        <div th:if="${businessProfile != null and businessProfile.status == 'PENDING'}" class="alert alert-warning mb-24">
+            ⚠ Your business profile and GST number are pending admin approval. You cannot apply for loans until approved.
+        </div>
+        <div th:if="${businessProfile != null and businessProfile.status == 'REJECTED'}" class="alert alert-danger mb-24">
+            ❌ Your business profile was rejected by an admin. Please update your profile with correct GST/tax details.
+        </div>
+
+        <div class="card">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Loan ID</th>
+                            <th>Amount</th>
+                            <th>Purpose</th>
+                            <th>Tenure</th>
+                            <th>Interest</th>
+                            <th>Paid</th>
+                            <th>Remaining</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(loans)}">
+                            <td colspan="9" style="text-align:center;color:var(--text-muted);padding:40px;">
+                                No loan applications yet. <a th:if="${businessProfile != null and businessProfile.status == 'APPROVED'}" th:href="@{/business/loans/apply}" style="color:var(--accent-blue);">Apply now</a>
+                                <span th:if="${businessProfile == null or businessProfile.status != 'APPROVED'}">Approval required to apply.</span>
+                            </td>
+                        </tr>
+                        <tr th:each="loan : ${loans}">
+                            <td class="text-muted text-sm" th:text="${'#' + loan.loanId}"></td>
+                            <td class="font-bold">₹<span
+                                    th:text="${#numbers.formatDecimal(loan.loanAmount,1,2)}"></span></td>
+                            <td class="text-muted text-sm" th:text="${loan.purpose}"></td>
+                            <td class="text-muted text-sm" th:text="${loan.tenureMonths + 'M'}"></td>
+                            <td class="text-muted text-sm" th:text="${loan.interestRate + '%'}"></td>
+                            <td class="text-success font-bold">₹<span
+                                    th:text="${#numbers.formatDecimal(loan.amountPaid,1,2)}"></span></td>
+                            <td class="text-warning font-bold">₹<span
+                                    th:text="${#numbers.formatDecimal(loan.amountRemaining,1,2)}"></span></td>
+                            <td>
+                                <span
+                                    th:class="${'badge' + (loan.status == 'APPROVED' ? ' badge-success' : loan.status == 'PENDING' ? ' badge-warning' : loan.status == 'REJECTED' ? ' badge-danger' : loan.status == 'CLOSED' ? ' badge-muted' : ' badge-info')}"
+                                    th:text="${loan.status}"></span>
+                            </td>
+                            <td>
+                                <a th:href="@{/business/loans/{id}(id=${loan.loanId})}" class="btn btn-ghost btn-sm">🔍
+                                    Details</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </section>
+</body>
+
+</html>

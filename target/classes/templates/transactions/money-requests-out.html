@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+
+<head>
+    <title>Sent Money Requests</title>
+</head>
+
+<body>
+    <section th:fragment="content">
+        <div class="flex-between mb-16">
+            <div class="flex gap-12">
+                <a th:href="@{/requests/incoming}" class="btn btn-outline btn-sm">📥 Incoming</a>
+                <a th:href="@{/requests/outgoing}" class="btn btn-primary btn-sm">📤 Outgoing</a>
+            </div>
+            <a th:href="@{/requests/send}" class="btn btn-primary btn-sm">+ New Request</a>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">📤 Sent Requests</h2>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>To</th>
+                            <th>Amount</th>
+                            <th>Purpose</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(requests)}">
+                            <td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">No sent
+                                requests.</td>
+                        </tr>
+                        <tr th:each="req : ${requests}">
+                            <td><span class="font-bold" th:text="${req.requesteeName}"></span>
+                                <div class="text-muted text-sm" th:text="${req.requesteeEmail}"></div>
+                            </td>
+                            <td class="font-bold text-warning">₹<span
+                                    th:text="${#numbers.formatDecimal(req.amount,1,2)}"></span></td>
+                            <td class="text-muted text-sm" th:text="${req.purpose ?: '-'}"></td>
+                            <td><span
+                                    th:class="${'badge' + (req.status == 'PENDING' ? ' badge-warning' : req.status == 'ACCEPTED' ? ' badge-success' : ' badge-danger')}"
+                                    th:text="${req.status}"></span></td>
+                            <td class="text-muted text-sm"
+                                th:text="${req.createdAt != null ? #temporals.format(req.createdAt,'dd MMM yy') : '-'}">
+                            </td>
+                            <td>
+                                <form th:if="${req.status == 'PENDING'}"
+                                    th:action="@{/requests/{id}/cancel(id=${req.requestId})}" method="post"><button type="submit" class="btn btn-warning btn-sm">✗ Cancel</button>
+                                </form>
+                                <span th:if="${req.status != 'PENDING'}" class="text-muted text-sm">—</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

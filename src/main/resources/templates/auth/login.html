@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - RevPay</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body class="auth-body">
+    <div class="auth-card fade-in">
+        <div class="auth-header">
+            <h1 class="auth-logo">RevPay</h1>
+            <p>Smart. Secure. Seamless.</p>
+        </div>
+
+        <div class="auth-tabs">
+            <a href="/auth/login" class="auth-tab active">Sign In</a>
+            <a href="/auth/register" class="auth-tab">Create Account</a>
+        </div>
+
+        <div class="auth-form">
+            <div th:if="${errorMsg}" class="alert alert-danger fade-in">
+                ⚠ <span th:text="${errorMsg}"></span>
+            </div>
+            <div th:if="${successMsg}" class="alert alert-success fade-in">
+                ✓ <span th:text="${successMsg}"></span>
+            </div>
+
+            <form th:action="@{/auth/login}" method="post">
+                <div class="form-group">
+                    <label class="form-label" for="emailOrPhone">Email or Phone Number</label>
+                    <input type="text" id="emailOrPhone" name="emailOrPhone" class="form-control"
+                        placeholder="Enter your email or phone" autocomplete="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <div style="position:relative;">
+                        <input type="password" id="password" name="password" class="form-control"
+                            placeholder="Enter your password" autocomplete="current-password" required>
+                        <button type="button" onclick="togglePin('password')"
+                            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;">👁</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Sign In</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="/auth/register">Register here</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <script th:src="@{/js/app.js}"></script>
+    <script>
+        function togglePin(inputId) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+            } else {
+                input.type = 'password';
+            }
+        }
+    </script>
+</body>
+
+</html>
