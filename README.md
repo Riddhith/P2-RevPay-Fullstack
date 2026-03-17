@@ -127,17 +127,18 @@ spring.datasource.password=YOUR_PASSWORD
 mvn spring-boot:run
 ```
 
-The application starts at: **http://localhost:8080**
+The application starts at: **http://localhost:8182**
 
 ---
 
 ## 🔐 Security Features
 
 - **BCrypt** password hashing
-- **CSRF** protection on all POST forms
+- **JWT Authentication** enabled
 - **Session Management** with single-session enforcement (30 min timeout)
 - **Role-Based Access Control**:
   - `/business/**` — BUSINESS role only
+  - `/admin/**` - ADMIN role only
   - All other pages require authenticated session
 - **Transaction PIN** — optional extra layer for sending money
 
@@ -152,7 +153,7 @@ The application starts at: **http://localhost:8080**
 - Manage payment methods (credit/debit cards)
 - View transaction history with advanced filters
 - Export to CSV or PDF
-- Notification preferences
+- Notification
 
 ### Business Account
 - All personal features
