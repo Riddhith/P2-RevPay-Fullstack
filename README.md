@@ -21,74 +21,124 @@ RevPay is a full-stack monolithic financial web application built with Spring Bo
 ## 🗂 Project Structure
 
 ```
-src/main/java/com/revature/revpay/
-├── RevPayApplication.java
-├── config/
-│   ├── DatabaseConfig.java         # Oracle DataSource bean
-│   └── SecurityConfig.java         # Spring Security configuration
-├── model/
-│   ├── User.java
-│   ├── Transaction.java
-│   ├── PaymentMethod.java
-│   ├── MoneyRequest.java
-│   ├── Notification.java, NotificationPreference.java
-│   ├── Invoice.java, InvoiceItem.java
-│   ├── LoanApplication.java
-│   └── BusinessProfile.java
-├── dao/                            # All raw JDBC DAOs
-│   ├── UserDAO.java
-│   ├── TransactionDAO.java
-│   ├── PaymentMethodDAO.java
-│   ├── MoneyRequestDAO.java
-│   ├── NotificationDAO.java
-│   ├── InvoiceDAO.java
-│   ├── LoanApplicationDAO.java
-│   └── BusinessProfileDAO.java
-├── service/                        # Business logic layer
-│   ├── UserService.java
-│   ├── TransactionService.java
-│   ├── NotificationService.java
-│   ├── MoneyRequestService.java
-│   ├── PaymentMethodService.java
-│   └── BusinessService.java
-├── controller/                     # Spring MVC Controllers
-│   ├── HomeController.java
-│   ├── AuthController.java
-│   ├── DashboardController.java
-│   ├── TransactionController.java
-│   ├── MoneyRequestController.java
-│   ├── PaymentMethodController.java
-│   ├── WalletController.java
-│   ├── NotificationController.java
-│   ├── ProfileController.java
-│   └── BusinessController.java
-└── util/
-    ├── PasswordUtil.java            # BCrypt helpers
-    └── ExportUtil.java              # CSV + PDF export
+src/
+├── main/
+│   ├── java/
+│   │   └── com/
+│   │       └── revature/
+│   │           └── revpay/
+│   │               ├── RevPayApplication.java
+│   │               ├── config/
+│   │               │   ├── DatabaseConfig.java
+│   │               │   ├── JwtAuthFilter.java
+│   │               │   ├── SecurityConfig.java
+│   │               │   └── UserDetailsConfig.java
+│   │               ├── controller/
+│   │               │   ├── AdminController.java
+│   │               │   ├── AuthController.java
+│   │               │   ├── BusinessController.java
+│   │               │   ├── DashboardController.java
+│   │               │   ├── GlobalControllerAdvice.java
+│   │               │   ├── GlobalModelAdvice.java
+│   │               │   ├── HomeController.java
+│   │               │   ├── MoneyRequestController.java
+│   │               │   ├── NotificationController.java
+│   │               │   ├── PaymentMethodController.java
+│   │               │   ├── PersonalInvoiceController.java
+│   │               │   ├── ProfileController.java
+│   │               │   ├── TransactionController.java
+│   │               │   └── WalletController.java
+│   │               ├── dao/
+│   │               │   ├── BusinessProfileDAO.java
+│   │               │   ├── InvoiceDAO.java
+│   │               │   ├── LoanApplicationDAO.java
+│   │               │   ├── MoneyRequestDAO.java
+│   │               │   ├── NotificationDAO.java
+│   │               │   ├── PaymentMethodDAO.java
+│   │               │   ├── TransactionDAO.java
+│   │               │   └── UserDAO.java
+│   │               ├── exception/
+│   │               │   └── GlobalExceptionHandler.java
+│   │               ├── model/
+│   │               │   ├── BusinessProfile.java
+│   │               │   ├── Invoice.java
+│   │               │   ├── InvoiceItem.java
+│   │               │   ├── LoanApplication.java
+│   │               │   ├── MoneyRequest.java
+│   │               │   ├── Notification.java
+│   │               │   ├── NotificationPreference.java
+│   │               │   ├── PaymentMethod.java
+│   │               │   ├── Transaction.java
+│   │               │   └── User.java
+│   │               ├── service/
+│   │               │   ├── BusinessService.java
+│   │               │   ├── MoneyRequestService.java
+│   │               │   ├── NotificationService.java
+│   │               │   ├── PaymentMethodService.java
+│   │               │   ├── TransactionService.java
+│   │               │   └── UserService.java
+│   │               └── util/
+│   │                   ├── ExportUtil.java
+│   │                   ├── JwtUtil.java
+│   │                   └── PasswordUtil.java
+│   └── resources/
+│       ├── application.properties
+│       ├── log4j2.xml
+│       ├── sql/
+│       │   └── database_setup.sql
+│       ├── static/
+│       │   ├── css/
+│       │   │   └── style.css
+│       │   └── js/
+│       │       └── app.js
+│       └── templates/
+│           ├── error.html
+│           ├── admin/
+│           │   ├── gst.html
+│           │   ├── history.html
+│           │   └── loans.html
+│           ├── auth/
+│           │   ├── login.html
+│           │   └── register.html
+│           ├── business/
+│           │   ├── analytics.html
+│           │   ├── invoice-detail.html
+│           │   ├── invoice-form.html
+│           │   ├── invoices.html
+│           │   ├── loan-detail.html
+│           │   ├── loan-form.html
+│           │   └── loans.html
+│           ├── dashboard/
+│           │   ├── business.html
+│           │   └── personal.html
+│           ├── fragments/
+│           │   └── layout.html
+│           ├── notifications/
+│           │   ├── index.html
+│           │   └── preferences.html
+│           ├── payment-methods/
+│           │   └── index.html
+│           ├── personal/
+│           │   ├── invoice-detail.html
+│           │   └── invoices.html
+│           ├── profile/
+│           │   └── index.html
+│           ├── transactions/
+│           │   ├── history.html
+│           │   ├── money-requests-out.html
+│           │   ├── money-requests.html
+│           │   ├── request.html
+│           │   └── send.html
+│           └── wallet/
+│               └── index.html
+└── test/
+    └── java/
+        └── com/
+            └── revature/
+                └── revpay/
+                    ├── HashTest.java
+                    └── UpdateDbTest.java
 
-src/main/resources/
-├── application.properties
-├── log4j2.xml
-├── sql/database_setup.sql           # Complete Oracle schema
-├── static/
-│   ├── css/style.css                # Premium dark theme
-│   └── js/app.js                    # Frontend JS
-└── templates/
-    ├── fragments/layout.html        # Sidebar layout
-    ├── auth/login.html, register.html
-    ├── dashboard/personal.html, business.html
-    ├── transactions/
-    │   ├── send.html, history.html, request.html
-    │   └── money-requests.html, money-requests-out.html
-    ├── wallet/index.html
-    ├── payment-methods/index.html
-    ├── notifications/index.html, preferences.html
-    ├── profile/index.html
-    ├── business/
-    │   ├── invoices.html, invoice-form.html, invoice-detail.html
-    │   ├── loans.html, loan-form.html, loan-detail.html
-    │   └── analytics.html
-    └── error.html
 ```
 
 ---
